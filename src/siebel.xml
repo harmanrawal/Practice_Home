@@ -1,0 +1,945 @@
+
+<#if MSISDN_WHITELIST[0] ?has_content>
+<#if orderLineItem.action == "Delete" &&
+orderLineItem.customerOrderSubType=="SI Transfer">
+<#else>
+<#if orderLineItem.customerClass !="Advance Retail">
+<#if comptelProdConfig[0].SRVC?has_content></#if>
+<#assign resultRow=0>
+<#list comptelProdConfig as productList>
+<#if (comptelProdConfig[resultRow].SRVC == "AIRTEL_GPRS" ||
+comptelProdConfig[resultRow].SRVC == "GPRS_APN") &&
+((orderLineItem.action != "Update") || (orderLineItem.action == "Update"
+&& product.privateAPN != product.privateAPNPrev ))>
+<#if comptelProdConfig[resultRow].ATTR_VALU == "3G" ||
+comptelProdConfig[resultRow].ATTR_VALU == "2G">
+<#if (comptelProdConfig[resultRow].ATTR_VALU == "3G" && check3G[0] ??) ||
+(comptelProdConfig[resultRow].ATTR_VALU == "2G" && check2G[0] ??)>
+<#else>
+<provisionServiceOrder>
+	<provisionRequest>
+		<customerOrder>
+			<purchaseOrderNumber>${orderLineItem.purchaseOrderNumber}
+			</purchaseOrderNumber>
+			<customerOrderSubType>${orderLineItem.customerOrderType}
+			</customerOrderSubType>
+			<customerOrderSubType>${orderLineItem.customerOrderSubType}
+			</customerOrderSubType>
+			<assignedPriority>${orderLineItem.assignedPriority}
+			</assignedPriority>
+		</customerOrder>
+		<#if orderLineItem.Flag4G == 'Y'>
+		<serviceSpecification>
+			<serviceConfigSpec>
+				<name>USIM</name>
+				<value>YES</value>
+			</serviceConfigSpec>
+		</serviceSpecification>
+		</#if>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.msisdn}</id>
+			</identification>
+			<type>MSISDN</type>
+			<#if orderLineItem.volteFlag == 'Y'>
+			<ext>
+				<attribute>
+					<name>VOLTE_FLAG</name>
+					<value>Y</value>
+				</attribute>
+			</ext>
+			</#if>
+		</logicalResource>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.imsi}</id>
+			</identification>
+			<type>IMSI</type>
+		</logicalResource>
+		<customer>
+			<customerClass>${orderLineItem.customerClass}</customerClass>
+			<customerType>${orderLineItem.customerType}</customerType>
+			<billCycle>${orderLineItem.billCycle}</billCycle>
+		</customer>
+		<geographicArea>
+			<identification>
+				<id>${orderLineItem.circle}</id>
+			</identification>
+		</geographicArea>
+		<managementJob>
+			<executionState></executionState>
+		</managementJob>
+		<productDetails>
+			<product>
+				<name>${comptelProdConfig[resultRow].PRDT_NAME}</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Add" >Activate</#if><#if
+						orderLineItem.action == "Delete" >Deactivate</#if><#if
+						orderLineItem.action == "Update" >Activate</#if></type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+				</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+						</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name>${comptelProdConfig[resultRow].ATTR_VALU}</name>
+						<type>${comptelProdConfig[resultRow].ATTR_NAME}</type>
+					</serviceSpecificationType>
+					<serviceSpecCharacteristic>
+						<id><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</id>
+						<name><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</name>
+						<unique></unique>
+						<valueType>APN_ID</valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].SRVC_SQNC}
+						</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<#if product.staticIP ?has_content>
+					<serviceConfigSpec>
+						<name>IPADDRESS</name>
+						<value>${product.staticIP}</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if orderLineItem.IPType ??>
+					<serviceConfigSpec>
+						<name>IPV6</name>
+						<value><#if orderLineItem.IPType = 'IPV6'>TRUE<#else>FALSE</#if>
+						</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if APNConfig[0] ??>
+					<#if APNConfig[0].PDPID?has_content>
+					<serviceConfigSpec>
+						<name>PDP_ID</name>
+						<value>${APNConfig[0].PDPID}</value>
+					</serviceConfigSpec>
+					</#if>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${APNConfig[0].APN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<#if IMSIWhitelist[0] ?? || circleAPN[0].HLR_FLAG == "N">
+					<#else>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${circleAPN[0].APN_ID}</value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+					<name>${comptelProdConfig[resultRow].SRVC}</name>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		<#if orderLineItem.action == "Update" >
+		<productDetails>
+			<product>
+				<name>${comptelProdConfig[resultRow].PRDT_NAME}</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Update" >Deactivate</#if>
+					</type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+				</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+						</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name>${comptelProdConfig[resultRow].ATTR_VALU}</name>
+						<type>${comptelProdConfig[resultRow].ATTR_NAME}</type>
+					</serviceSpecificationType>
+					<serviceSpecCharacteristic>
+						<id><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</id>
+						<name><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</name>
+						<unique></unique>
+						<valueType>APN_ID</valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].SRVC_SQNC}
+						</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<#if product.staticIP ?has_content>
+					<serviceConfigSpec>
+						<name>IPADDRESS</name>
+						<value>${product.staticIP}</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if orderLineItem.IPType ??>
+					<serviceConfigSpec>
+						<name>IPV6</name>
+						<value><#if orderLineItem.IPType = 'IPV6'>TRUE<#else>FALSE</#if>
+						</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if APNConfig[0] ??>
+					<#if APNConfig[0].PDPID?has_content>
+					<serviceConfigSpec>
+						<name>PDP_ID</name>
+						<value>${APNConfig[0].PDPID}</value>
+					</serviceConfigSpec>
+					</#if>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${APNConfig[0].APN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<#if IMSIWhitelist[0] ?? || circleAPN[0].HLR_FLAG == "N">
+					<#else>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${circleAPN[0].APN_ID}</value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+					<name>${comptelProdConfig[resultRow].SRVC}</name>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		</#if>
+	</provisionRequest>
+</provisionServiceOrder>
+</#if>
+</#if>
+<#if comptelProdConfig[resultRow].ATTR_VALU == "4G" >
+<#if orderLineItem.simType == "USIM" || orderLineItem.simType == "ESIM" >
+<#if check4G[0] ??>
+
+<#else>
+<provisionServiceOrder>
+	<provisionRequest>
+		<customerOrder>
+			<purchaseOrderNumber>${orderLineItem.purchaseOrderNumber}
+			</purchaseOrderNumber>
+			<customerOrderSubType>${orderLineItem.customerOrderType}
+			</customerOrderSubType>
+			<customerOrderSubType>${orderLineItem.customerOrderSubType}
+			</customerOrderSubType>
+			<assignedPriority>${orderLineItem.assignedPriority}
+			</assignedPriority>
+		</customerOrder>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.msisdn}</id>
+			</identification>
+			<type>MSISDN</type>
+			<#if orderLineItem.volteFlag == 'Y'>
+			<ext>
+				<attribute>
+					<name>VOLTE_FLAG</name>
+					<value>Y</value>
+				</attribute>
+			</ext>
+			</#if>
+		</logicalResource>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.imsi}</id>
+			</identification>
+			<type>IMSI</type>
+		</logicalResource>
+		<customer>
+			<customerClass>${orderLineItem.customerClass}</customerClass>
+			<customerType>${orderLineItem.customerType}</customerType>
+			<billCycle>${orderLineItem.billCycle}</billCycle>
+		</customer>
+		<geographicArea>
+			<identification>
+				<id>${orderLineItem.circle}</id>
+			</identification>
+		</geographicArea>
+		<managementJob>
+			<executionState></executionState>
+		</managementJob>
+		<productDetails>
+			<product>
+				<name>${comptelProdConfig[resultRow].PRDT_NAME}</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Add" >Activate</#if><#if
+						orderLineItem.action == "Delete" >Deactivate</#if><#if
+						orderLineItem.action == "Update" >Activate</#if></type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+				</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+						</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name>${comptelProdConfig[resultRow].ATTR_VALU}</name>
+						<type>${comptelProdConfig[resultRow].ATTR_NAME}</type>
+					</serviceSpecificationType>
+					<serviceSpecCharacteristic>
+						<id><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</id>
+						<name><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</name>
+						<unique></unique>
+						<valueType>APN_ID</valueType>
+					</serviceSpecCharacteristic>
+
+
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].SRVC_SQNC}
+						</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<#if product.staticIP ?has_content>
+					<serviceConfigSpec>
+						<name>IPADDRESS</name>
+						<value>${product.staticIP}</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if orderLineItem.IPType ??>
+					<serviceConfigSpec>
+						<name>IPV6</name>
+						<value><#if orderLineItem.IPType = 'IPV6'>TRUE<#else>FALSE</#if>
+						</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if product.migratedFlag == "T">
+					<serviceConfigSpec>
+						<name>TATA_SUBSCRIBER</name>
+						<value>Y</value>
+					</serviceConfigSpec>
+					</#if>
+
+					<#if APNConfig[0] ??>
+					<#if APNConfig[0].PDPID?has_content>
+					<serviceConfigSpec>
+						<name>PDP_ID</name>
+						<value>${APNConfig[0].PDPID}</value>
+					</serviceConfigSpec>
+					</#if>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${APNConfig[0].APN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<#if IMSIWhitelist[0] ?? || circleAPN[0].HLR_FLAG == "N">
+
+					<#else>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${circleAPN[0].APN_ID}</value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+					<name>${comptelProdConfig[resultRow].SRVC}</name>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		<#if orderLineItem.action == "Update" >
+		<productDetails>
+			<product>
+				<name>${comptelProdConfig[resultRow].PRDT_NAME}</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Update" >Deactivate</#if>
+					</type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+				</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+						</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name>${comptelProdConfig[resultRow].ATTR_VALU}</name>
+						<type>${comptelProdConfig[resultRow].ATTR_NAME}</type>
+					</serviceSpecificationType>
+					<serviceSpecCharacteristic>
+						<id><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID ??><#if
+							IMSIWhitelist[0]??>${circleAPN[0].APN_NAME}<#else>${circleAPN[0].APN_ID}</#if></#if><#else><#if
+							APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</id>
+						<name><#if product.privateAPN == "Please Select" ||
+							product.privateAPN == "" ><#if circleAPN[0].APN_ID
+							??>${circleAPN[0].APN_ID}</#if><#else><#if APNConfig[0] ??><#if
+							APNConfig[0].APNID?has_content>${APNConfig[0].APNID}</#if><#else>${product.privateAPN}</#if></#if>
+						</name>
+						<unique></unique>
+						<valueType>APN_ID</valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].SRVC_SQNC}
+						</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<#if product.staticIP ?has_content>
+					<serviceConfigSpec>
+						<name>IPADDRESS</name>
+						<value>${product.staticIP}</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if orderLineItem.IPType ??>
+					<serviceConfigSpec>
+						<name>IPV6</name>
+						<value><#if orderLineItem.IPType = 'IPV6'>TRUE<#else>FALSE</#if>
+						</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if APNConfig[0] ??>
+					<#if APNConfig[0].PDPID?has_content>
+					<serviceConfigSpec>
+						<name>PDP_ID</name>
+						<value>${APNConfig[0].PDPID}</value>
+					</serviceConfigSpec>
+					</#if>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${APNConfig[0].APN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<#if IMSIWhitelist[0] ?? || circleAPN[0].HLR_FLAG == "N">
+					<#else>
+					<serviceConfigSpec>
+						<name>APN_NAME</name>
+						<value>${circleAPN[0].APN_ID}</value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+					<name>${comptelProdConfig[resultRow].SRVC}</name>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		</#if>
+	</provisionRequest>
+</provisionServiceOrder>
+</#if>
+</#if>
+</#if>
+</#if>
+<#if comptelProdConfig[resultRow].SRVC == "MYDATAPACK" &&
+orderLineItem.action != "Update">
+<#if (((orderLineItem.customerOrderSubType =="Product change" ||
+orderLineItem.customerOrderSubType =="Change of Bill Plan" ||
+orderLineItem.customerOrderSubType =="SI Transfer") &&
+orderLineItem.action =="Delete" ) || (orderLineItem.customerOrderSubType
+=="Change Order" && (orderLineItem.action =="Delete" ||
+orderLineItem.action =="Add"))) && product.nonSellable =="Y" &&
+circleAPN[0].MIGRATED="Y">
+<#else>
+<provisionServiceOrder>
+	<provisionRequest>
+		<customerOrder>
+			<purchaseOrderNumber>${orderLineItem.purchaseOrderNumber}
+			</purchaseOrderNumber>
+			<customerOrderSubType>${orderLineItem.customerOrderType}
+			</customerOrderSubType>
+			<customerOrderSubType>${orderLineItem.customerOrderSubType}
+			</customerOrderSubType>
+			<assignedPriority>${orderLineItem.assignedPriority}
+			</assignedPriority>
+		</customerOrder>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.msisdn}</id>
+			</identification>
+			<type>MSISDN</type>
+			<#if orderLineItem.volteFlag == 'Y'>
+			<ext>
+				<attribute>
+					<name>VOLTE_FLAG</name>
+					<value>Y</value>
+				</attribute>
+			</ext>
+			</#if>
+		</logicalResource>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.imsi}</id>
+			</identification>
+			<type>IMSI</type>
+		</logicalResource>
+		<customer>
+			<customerClass>${orderLineItem.customerClass}</customerClass>
+			<customerType>${orderLineItem.customerType}</customerType>
+			<billCycle>${orderLineItem.billCycle}</billCycle>
+		</customer>
+		<geographicArea>
+			<identification>
+				<id>${orderLineItem.circle}</id>
+			</identification>
+		</geographicArea>
+		<managementJob>
+			<executionState></executionState>
+		</managementJob>
+		<productDetails>
+			<#assign unitsCalculated = 0>
+			<#assign defaultPulse = 10>
+			<#assign netPrice = product.netPrice>
+			<#if product.billShield ??>
+			<#if product.netPrice = 99>
+			<#assign unitsCalculated = comptelQuotaConfig[0].DA2_VALUE>
+			<#else>
+			<#assign unitsCalculated = (defaultPulse/1) * (product.billShield * 100)>
+			</#if>
+			</#if>
+			<product>
+				<name>${comptelProdConfig[resultRow].PRDT_NAME}</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Add" >Activate</#if><#if
+						orderLineItem.action == "Delete" >Deactivate</#if><#if
+						orderLineItem.action == "Update">Activate</#if></type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+				</productSpecSeq>
+				<customerFacingService>
+					<serviceSpecCharacteristic>
+						<id></id>
+						<name></name>
+						<unique></unique>
+						<valueType></valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].SRVC_SQNC}
+						</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<serviceConfigSpec>
+						<name>OFFER_ID</name>
+						<value><#if comptelQuotaConfig[0].OFFR_ID
+							?has_content>${comptelQuotaConfig[0].OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					<serviceConfigSpec>
+						<name>UPGRADE</name>
+						<value>2</value>
+					</serviceConfigSpec>
+
+					<#if comptelQuotaConfig[0].PVDR_OFFR_ID?has_content>
+					<serviceConfigSpec>
+						<name>PROVIDER_OFFERID</name>
+						<value><#if comptelQuotaConfig[0].PVDR_OFFR_ID
+							?has_content>${comptelQuotaConfig[0].PVDR_OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+
+					<#if orderLineItem.action == "Delete">
+					<#if orderLineItem.oldParentMSISDN?has_content>
+					<serviceConfigSpec>
+						<name>PARENT_MSISDN</name>
+						<value>${orderLineItem.oldParentMSISDN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<#if orderLineItem.parentMSISDN?has_content>
+					<serviceConfigSpec>
+						<name>PARENT_MSISDN</name>
+						<value>${orderLineItem.parentMSISDN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<serviceConfigSpec>
+						<name>PARENT_MSISDN</name>
+						<value>${orderLineItem.msisdn}</value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+					</#if>
+					<#if orderLineItem.action == "Add">
+					<#if orderLineItem.parentMSISDN?has_content>
+					<serviceConfigSpec>
+						<name>PARENT_MSISDN</name>
+						<value>${orderLineItem.parentMSISDN}</value>
+					</serviceConfigSpec>
+					<#else>
+					<serviceConfigSpec>
+						<name>PARENT_MSISDN</name>
+						<value>${orderLineItem.msisdn}</value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+
+					<#if comptelQuotaConfig[0].SHRD_OFFR_ID?has_content>
+					<#if orderLineItem.parentMSISDN?has_content &&
+					orderLineItem.oldParentMSISDN == "" && orderLineItem.action ==
+					"Delete">
+					<serviceConfigSpec>
+						<name>SHARED_OFFERID</name>
+						<value><#if comptelQuotaConfig[0].SHRD_OFFR_ID
+							?has_content>${comptelQuotaConfig[0].SHRD_OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					</#if>
+					<#if orderLineItem.parentMSISDN == "" &&
+					orderLineItem.oldParentMSISDN?has_content && orderLineItem.action
+					== "Add">
+					<serviceConfigSpec>
+						<name>SHARED_OFFERID</name>
+						<value><#if comptelQuotaConfig[0].SHRD_OFFR_ID
+							?has_content>${comptelQuotaConfig[0].SHRD_OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					</#if>
+					<#if orderLineItem.parentMSISDN?has_content &&
+					orderLineItem.oldParentMSISDN?has_content>
+
+					</#if>
+					<#if orderLineItem.parentMSISDN == "" && orderLineItem.oldParentMSISDN
+					== "">
+					<serviceConfigSpec>
+						<name>SHARED_OFFERID</name>
+						<value><#if comptelQuotaConfig[0].SHRD_OFFR_ID
+							?has_content>${comptelQuotaConfig[0].SHRD_OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+					</#if>
+
+					<name>${comptelProdConfig[resultRow].SRVC}</name>
+					<id><#if comptelQuotaConfig[0].DA1_ID
+						?has_content>${comptelQuotaConfig[0].DA1_ID},<#if
+						product.totalBenefits
+						??>${unitsCalculated?round}</#if>,${comptelQuotaConfig[0].DA1_DMMY},<#else>,,,</#if><#if
+						comptelQuotaConfig[0].DA2_ID
+						?has_content>${comptelQuotaConfig[0].DA2_ID},${unitsCalculated?round},${comptelQuotaConfig[0].DA2_DMMY},<#else>,,,</#if><#if
+						comptelQuotaConfig[0].DA3_ID
+						?has_content>${comptelQuotaConfig[0].DA3_ID},<#if
+						product.totalBenefits
+						??>${unitsCalculated?abs}</#if>,${comptelQuotaConfig[0].DA3_DMMY},<#else>,,,</#if>,,,,,
+					</id>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		<#if orderLineItem.action == "Update">
+		<productDetails>
+			<#assign unitsCalculated = 0>
+			<#assign unitsCalculatedPre = 0>
+			<#assign defaultPulse = 10>
+			<#assign netPrice = product.netPrice>
+			<#if product.billShield ??>
+			<#if product.netPrice = 99>
+			<#assign unitsCalculated = comptelQuotaConfig[0].DA2_VALUE>
+			<#else>
+			<#assign unitsCalculated = (defaultPulse/1) * (product.billShield * 100)>
+			<#assign unitsCalculatedPre = (defaultPulse/1) *
+			(product.billShieldPre * 100)>
+			</#if>
+			</#if>
+			<product>
+				<name>${comptelProdConfig[resultRow].PRDT_NAME}</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Update">Deactivate</#if></type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[resultRow].PRDT_SQNC}
+				</productSpecSeq>
+				<customerFacingService>
+					<serviceSpecCharacteristic>
+						<id></id>
+						<name></name>
+						<unique></unique>
+						<valueType></valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[resultRow].SRVC_SQNC}
+						</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<serviceConfigSpec>
+						<name>OFFER_ID</name>
+						<value><#if comptelQuotaConfig[0].OFFR_ID
+							?has_content>${comptelQuotaConfig[0].OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					<serviceConfigSpec>
+						<name>UPGRADE</name>
+						<value>2</value>
+					</serviceConfigSpec>
+
+
+					<#if comptelQuotaConfig[0].PVDR_OFFR_ID?has_content>
+					<serviceConfigSpec>
+						<name>PROVIDER_OFFERID</name>
+						<value><#if comptelQuotaConfig[0].PVDR_OFFR_ID
+							?has_content>${comptelQuotaConfig[0].PVDR_OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					<serviceConfigSpec>
+						<name>PARENT_MSISDN</name>
+						<value><#if orderLineItem.parentMSISDN != ""
+							>${orderLineItem.parentMSISDN}<#else>${orderLineItem.msisdn}</#if>
+						</value>
+					</serviceConfigSpec>
+					</#if>
+					<#if comptelQuotaConfig[0].SHRD_OFFR_ID?has_content>
+					<#if orderLineItem.parentMSISDN = "">
+					<serviceConfigSpec>
+						<name>SHARED_OFFERID</name>
+						<value><#if comptelQuotaConfig[0].SHRD_OFFR_ID
+							?has_content>${comptelQuotaConfig[0].SHRD_OFFR_ID}</#if></value>
+					</serviceConfigSpec>
+					</#if>
+					</#if>
+
+
+					<name>${comptelProdConfig[resultRow].SRVC}</name>
+					<id><#if comptelQuotaConfig[0].DA1_ID
+						?has_content>${comptelQuotaConfig[0].DA1_ID},<#if
+						product.totalBenefits
+						??>${unitsCalculatedPre?round}</#if>,${comptelQuotaConfig[0].DA1_DMMY},<#else>,,,</#if><#if
+						comptelQuotaConfig[0].DA2_ID
+						?has_content>${comptelQuotaConfig[0].DA2_ID},${unitsCalculatedPre?round},${comptelQuotaConfig[0].DA2_DMMY},<#else>,,,</#if><#if
+						comptelQuotaConfig[0].DA3_ID
+						?has_content>${comptelQuotaConfig[0].DA3_ID},<#if
+						product.totalBenefits
+						??>${unitsCalculatedPre?abs}</#if>,${comptelQuotaConfig[0].DA3_DMMY},<#else>,,,</#if>,,,,,
+					</id>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		</#if>
+	</provisionRequest>
+</provisionServiceOrder>
+</#if>
+</#if>
+<#assign resultRow=resultRow+1>
+</#list>
+
+
+<#assign resultRowOffer=10001>
+<#assign resultRowOfferSeq=0>
+<#list comptelOfferConfig as productList>
+<provisionServiceOrder>
+	<provisionRequest>
+		<customerOrder>
+			<purchaseOrderNumber>${orderLineItem.purchaseOrderNumber}
+			</purchaseOrderNumber>
+			<customerOrderSubType>${orderLineItem.customerOrderType}
+			</customerOrderSubType>
+			<customerOrderSubType>${orderLineItem.customerOrderSubType}
+			</customerOrderSubType>
+			<assignedPriority>${orderLineItem.assignedPriority}
+			</assignedPriority>
+		</customerOrder>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.msisdn}</id>
+			</identification>
+			<type>MSISDN</type>
+			<#if orderLineItem.volteFlag == 'Y'>
+			<ext>
+				<attribute>
+					<name>VOLTE_FLAG</name>
+					<value>Y</value>
+				</attribute>
+			</ext>
+			</#if>
+		</logicalResource>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.imsi}</id>
+			</identification>
+			<type>IMSI</type>
+		</logicalResource>
+		<customer>
+			<customerClass>${orderLineItem.customerClass}</customerClass>
+			<customerType>${orderLineItem.customerType}</customerType>
+			<billCycle>${orderLineItem.billCycle}</billCycle>
+		</customer>
+		<geographicArea>
+			<identification>
+				<id>${orderLineItem.circle}</id>
+			</identification>
+		</geographicArea>
+		<managementJob>
+			<executionState></executionState>
+		</managementJob>
+		<productDetails>
+			<product>
+				<name>DATA</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Add" >Activate</#if><#if
+						orderLineItem.action == "Delete" >Deactivate</#if><#if
+						orderLineItem.action == "Update" >Activate</#if></type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[0].PRDT_SQNC}</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[0].PRDT_SQNC}</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name>${comptelOfferConfig[resultRowOfferSeq].OFFR_ID}</name>
+						<type>Offer Id</type>
+					</serviceSpecificationType>
+					<serviceConfigSpec>
+						<name>Offer Type</name>
+						<value><#if comptelOfferConfig[0].OFFR_TYP
+							?has_content>${comptelOfferConfig[resultRowOfferSeq].OFFR_TYP}</#if>
+						</value>
+					</serviceConfigSpec>
+					<serviceSpecCharacteristic>
+						<id></id>
+						<name></name>
+						<unique></unique>
+						<valueType></valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${resultRowOffer}</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<name>OFFER</name>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		<#if orderLineItem.action == "Update" >
+		<productDetails>
+			<product>
+				<name>DATA</name>
+				<productConfiguration>
+					<type><#if orderLineItem.action == "Update" >Deactivate</#if>
+					</type>
+				</productConfiguration>
+				<productSpecSeq>${comptelProdConfig[0].PRDT_SQNC}</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>${comptelProdConfig[0].PRDT_SQNC}</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name>${comptelOfferConfig[resultRowOfferSeq].OFFR_ID}</name>
+						<type>Offer Id</type>
+					</serviceSpecificationType>
+					<serviceConfigSpec>
+						<name>Offer Type</name>
+						<value><#if comptelOfferConfig[0].OFFR_TYP
+							?has_content>${comptelOfferConfig[resultRowOfferSeq].OFFR_TYP}</#if>
+						</value>
+					</serviceConfigSpec>
+					<serviceSpecCharacteristic>
+						<id></id>
+						<name></name>
+						<unique></unique>
+						<valueType></valueType>
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>${resultRowOffer}</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<name>OFFER</name>
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+		</#if>
+	</provisionRequest>
+</provisionServiceOrder>
+<#assign resultRowOffer=resultRowOffer+1>
+<#assign resultRowOfferSeq=resultRowOfferSeq+1>
+</#list>
+
+<#if (orderLineItem.volteFlag == "Y" && orderLineItem.action == "Update" &&
+product.privateAPN != product.privateAPNPrev ) >
+<provisionServiceOrder>
+	<provisionRequest>
+		<customerOrder>
+			<purchaseOrderNumber>${orderLineItem.purchaseOrderNumber}
+			</purchaseOrderNumber>
+			<assignedPriority>${orderLineItem.assignedPriority}
+			</assignedPriority>
+		</customerOrder>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.msisdn}</id>
+			</identification>
+			<type>MSISDN</type>
+		</logicalResource>
+		<logicalResource>
+			<identification>
+				<id>${orderLineItem.imsi}</id>
+			</identification>
+			<type>IMSI</type>
+		</logicalResource>
+		<customer>
+			<customerClass>${orderLineItem.customerClass}</customerClass>
+			<customerType>${orderLineItem.customerType}</customerType>
+			<billCycle>${orderLineItem.billCycle}</billCycle>
+		</customer>
+		<geographicArea>
+			<identification>
+				<id>${orderLineItem.circle}</id>
+			</identification>
+		</geographicArea>
+		<managementJob>
+			<executionState />
+		</managementJob>
+		<productDetails>
+			<product>
+				<name>DATA</name>
+				<productSpecSeq>95</productSpecSeq>
+				<productSpecification>
+					<productSpecCharRelationship>
+						<charSpecSeq>95</charSpecSeq>
+					</productSpecCharRelationship>
+				</productSpecification>
+				<productConfiguration>
+					<type>Activate</type>
+				</productConfiguration>
+				<customerFacingService>
+					<serviceSpecificationType>
+						<name />
+						<type />
+					</serviceSpecificationType>
+					<serviceSpecCharacteristic>
+						<id />
+						<name />
+						<unique />
+						<valueType />
+					</serviceSpecCharacteristic>
+					<serviceSpecCharRelationship>
+						<charSpecSeq>1</charSpecSeq>
+					</serviceSpecCharRelationship>
+					<name>VOLTE</name>
+					<id />
+					<date>${orderLineItem.interactionDate}</date>
+				</customerFacingService>
+			</product>
+		</productDetails>
+	</provisionRequest>
+</provisionServiceOrder>
+</#if>
+</#if>
+</#if>
+
+</#if>

@@ -1,0 +1,156 @@
+<l:event programmeName="Butterfly"
+	dateTime="2020-01-15 17:12:41.55" layerName="OSB"
+	processName="CreateChangeOrder_V2.createChangeOrder"
+	eventType="OUTBOUND" eventStatus="" eventCode=""
+	outboundServiceName="changeOrderSiebelRIO.RIOChangeOrder"
+	serverHostIP="N2MCITL-ESB026/10.5.213.40/osb_server1" providerID=""
+	originatorIP="10.5.170.247" consumerTransactionId="UCC_12453542"
+	SOATransactionID="9af569ae-3ba9-44cd-ac71-100dc95c5111" businessKey1=""
+	businessKey2="" businessKey3="" businessKey4="" businessKey5=""
+	businessKeyVal1="" businessKeyVal2="" businessKeyVal3=""
+	businessKeyVal4="" businessKeyVal5="" responseTime="" consumerName="OM">
+	<cus:RIOChangeOrder_Input
+		xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+		xmlns:cus="http://siebel.com/CustomUI">
+		<btf:ListOfBtflyCreateOrderIo
+			xmlns:btf="http://www.siebel.com/xml/BTFLY%20Change%20Order%20IO">
+			<btf:OrderEntry-Orders>
+				<btf:LOB>Mobility</btf:LOB>
+				<btf:Source>OM</btf:Source>
+				<btf:Circle />
+				<btf:OrderSubType>Change Order</btf:OrderSubType>
+				<btf:MSISDN>7043344859</btf:MSISDN>
+				<btf:OrderType>Modify</btf:OrderType>
+				<btf:BTFLYParentMobileNumber />
+				<btf:AddressType />
+				<btf:City />
+				<btf:Country />
+				<btf:PostalCode />
+				<btf:Province />
+				<btf:StreetAddress />
+				<btf:StreetAddress2 />
+				<btf:StreetAddress3 />
+				<btf:StreetAddress4 />
+				<btf:BTFLYDistrict />
+				<btf:CareOf />
+				<btf:PostOfficeName />
+				<btf:Subdistrict />
+				<btf:ESIMFlag>N</btf:ESIMFlag>
+				<btf:ListOfOrderEntry-LineItems>
+					<btf:OrderEntry-LineItems>
+						<btf:ShortCode>1-2KWJ</btf:ShortCode>
+						<btf:ActionCode>-</btf:ActionCode>
+						<btf:PromotionShortCode />
+						<btf:ProdPromName />
+						<btf:Product>Airtel Mobility</btf:Product>
+						<btf:ServiceId>7043344859</btf:ServiceId>
+					</btf:OrderEntry-LineItems>
+				</btf:ListOfOrderEntry-LineItems>
+			</btf:OrderEntry-Orders>
+		</btf:ListOfBtflyCreateOrderIo>
+	</cus:RIOChangeOrder_Input>
+</l:event>
+
+
+
+<l:event programmeName="Butterfly"
+	dateTime="2020-01-15 17:12:57.88" layerName="OSB"
+	processName="CreateChangeOrder_V2.createChangeOrder"
+	eventType="INBOUND" eventStatus="SUCCESS" eventCode=""
+	outboundServiceName="changeOrderSiebelRIO.RIOChangeOrder"
+	serverHostIP="N2MCITL-ESB026/10.5.213.40/osb_server1" providerID=""
+	originatorIP="10.5.170.247" consumerTransactionId="UCC_12453542"
+	SOATransactionID="9af569ae-3ba9-44cd-ac71-100dc95c5111" businessKey1=""
+	businessKey2="" businessKey3="" businessKey4="" businessKey5=""
+	businessKeyVal1="" businessKeyVal2="" businessKeyVal3=""
+	businessKeyVal4="" businessKeyVal5="" responseTime="" consumerName="OM">
+	<ns:RIOChangeOrder_Output
+		xmlns:ns="http://siebel.com/CustomUI"
+		xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<ns:AccountId>1-MRQBR58</ns:AccountId>
+		<ns:AccountNum>1-49566016556</ns:AccountNum>
+		<ns:ActionCode />
+		<ns:AddressType />
+		<ns:ApartmentNumber />
+		<ns:AssetId />
+		<ns:BTFLYDistrict />
+		<ns:BTFLYParentMobileNumber />
+		<ns:BTFLYZone />
+		<ns:BillableFlag>Y</ns:BillableFlag>
+		<ns:CareOf />
+		<ns:ChildAssetNum>1-49566133966</ns:ChildAssetNum>
+		<ns:ChildBillAccntId>1-MRQBR5C</ns:ChildBillAccntId>
+		<ns:ChildBillAccntIdBS />
+		<ns:City />
+		<ns:Component />
+		<ns:ContactId>1-MRQBR62</ns:ContactId>
+		<ns:Country />
+		<ns:CrossPlanChangeFlag />
+		<ns:CurrencyCode />
+		<ns:CustClass>Retail</ns:CustClass>
+		<ns:ESIMFlag>N</ns:ESIMFlag>
+		<ns:EligibilityStatus />
+		<ns:Error_spcCode>S-CreateChangeOrder-000</ns:Error_spcCode>
+		<ns:Error_spcMessage>SUCCESS</ns:Error_spcMessage>
+		<ListOfBtflyCreateOrderIo
+			xmlns="http://www.siebel.com/xml/BTFLY%20Change%20Order%20IO">
+			<OrderEntry-Orders>
+				<Source>OM</Source>
+				<LOB>Mobility</LOB>
+				<Circle />
+				<OrderSubType>Change Order</OrderSubType>
+				<MSISDN>7043344859</MSISDN>
+				<OrderType>Modify</OrderType>
+				<BTFLYParentMobileNumber />
+				<AddressType />
+				<City />
+				<Country />
+				<PostalCode />
+				<StreetAddress />
+				<StreetAddress2 />
+				<StreetAddress3 />
+				<StreetAddress4 />
+				<BTFLYDistrict />
+				<CareOf />
+				<PostOfficeName />
+				<Subdistrict />
+				<Province />
+				<ESIMFlag>N</ESIMFlag>
+				<ListOfOrderEntry-LineItems>
+					<OrderEntry-LineItems>
+						<ShortCode>1-2KWJ</ShortCode>
+						<ActionCode>-</ActionCode>
+						<PromotionShortCode />
+						<ProdPromName />
+						<Product>Airtel Mobility</Product>
+						<ServiceId>7043344859</ServiceId>
+					</OrderEntry-LineItems>
+				</ListOfOrderEntry-LineItems>
+			</OrderEntry-Orders>
+		</ListOfBtflyCreateOrderIo>
+		<ns:Inp />
+		<ns:Inputs />
+		<ns:LOB>Mobility</ns:LOB>
+		<ns:NewErrMsg />
+		<ns:NewPromProduct />
+		<ns:OldProCat />
+		<ns:OperatingStatus />
+		<ns:OrderNumber>21-49579412710</ns:OrderNumber>
+		<ns:OrderStatus />
+		<ns:Org11>GJ</ns:Org11>
+		<ns:ParMSISDN />
+		<ns:Part />
+		<ns:PaytoAccntId>1-MRQBR5C</ns:PaytoAccntId>
+		<ns:PlanElgbltyChck />
+		<ns:PostOfficeName />
+		<ns:PostalCode />
+		<ns:PostnId>1-K6KK0YN</ns:PostnId>
+		<ns:PriceListId />
+		<ns:ProductLockFlg />
+		<ns:PromId>1-ZRWDKT</ns:PromId>
+		<ns:PromotionId />
+		<ns:Province />
+		<ns:RecordCount />
+		<ns:ReqXML2><![CDATA[<?xml version="1.0" encoding="UTF-8"?><SiebelMessage MessageId="" MessageType="Integration Object" IntObjectName="BTFLY Change Order IO" IntObjectFormat="Siebel Hierarchical"><ListOfBtflyCreateOrderIo><OrderEntry-Orders><Source>OM</Source><LOB>Mobility</LOB><Circle></Circle><OrderSubType>Change Order</OrderSubType><MSISDN>7043344859</MSISDN><OrderType>Modify</OrderType><BTFLYParentMobileNumber></BTFLYParentMobileNumber><AddressType></AddressType><City></City><Country></Country><PostalCode></PostalCode><StreetAddress></StreetAddress><StreetAddress2></StreetAddress2><StreetAddress3></StreetAddress3><StreetAddress4></StreetAddress4><BTFLYDistrict></BTFLYDistrict><CareOf></CareOf><PostOfficeName></PostOfficeName><Subdistrict></Subdistrict><Province></Province><ESIMFlag>N</ESIMFlag><ListOfOrderEntry-LineItems><OrderEntry-LineItems><ShortCode>1-2KWJ</ShortCode><ActionCode>-</ActionCode><PromotionShortCode></PromotionShortCode><ProdPromName></ProdPromName><Product>Airtel Mobility</Product><ServiceId>7043344859</ServiceId></OrderEntry-LineItems></ListOfOrderEntry-LineItems></OrderEntry-Orders></ListOfBtflyCreateOrderIo></SiebelMessage>]]>]]&gt;<![CDATA[</ns:ReqXML2><ns:RequestId/><ns:RioId/><ns:RootAssetId>1-MRQE9QM</ns:RootAssetId><ns:SIMNum/><ns:SimSwapFlow>N</ns:SimSwapFlow><ns:Source>OM</ns:Source><ns:StartTime>2020-01-15</ns:StartTime><ns:State/><ns:Status>Complete</ns:Status><ns:StreetAddress/><ns:StreetAddress2/><ns:StreetAddress3/><ns:StreetAddress4/><ns:Subdistrict/><ns:SwitchRIO>True</ns:SwitchRIO><ns:TimeConfigured>98</ns:TimeConfigured><ns:TimeTaken>16</ns:TimeTaken><ns:TriggerProc/><ns:UpgradeToId/><ns:VolteAssetId/><ns:sIMSI/><ns:sSIMNo/><ns:vError/></ns:RIOChangeOrder_Output></l:event>
